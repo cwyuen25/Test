@@ -30,7 +30,9 @@
   ],
 
   "host_permissions": [
-    "https://uataksindividuallogin.manulife.com.hk/*"
+    "https://uataksindividuallogin.manulife.com.hk/*",
+    "https://stg-ap.manulife.com.hk/*",
+    "https://preprod-ap.manulife.com.hk/*"
   ],
 
   "web_accessible_resources": [
@@ -42,7 +44,11 @@
 
   "content_scripts": [
     {
-      "matches": ["https://uataksindividuallogin.manulife.com.hk/*"],
+      "matches": [
+        "https://uataksindividuallogin.manulife.com.hk/*",
+        "https://stg-ap.manulife.com.hk/*",
+        "https://preprod-ap.manulife.com.hk/*"
+      ],
       "js": ["content.js"],
       "run_at": "document_idle",
       "all_frames": true,

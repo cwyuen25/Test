@@ -54,6 +54,8 @@ const ENV_REFRESH_BASES = {
   uat1: 'https://uataksindividuallogin.manulife.com.hk/chatbot/chatbotApi/api/ccaas/v1/init/unique_key',
   uat2: 'https://uataksindividuallogin.manulife.com.hk/hk-cws-ee-portal-web-app-2/chatbot/chatbotApi/api/ccaas/v1/init/unique_key',
   uat3: 'https://uataksindividuallogin.manulife.com.hk/hk-cws-ee-portal-web-app-3/chatbot/chatbotApi/api/ccaas/v1/init/unique_key',
+  stg: 'https://stg-ap.manulife.com.hk/chatbot/chatbotApi/api/ccaas/v1/init/unique_key',
+  preprod: 'https://preprod-ap.manulife.com.hk/chatbot/chatbotApi/api/ccaas/v1/init/unique_key',
 };
 
 // Build URL using popup-selected env when provided; otherwise fall back to page-derived path

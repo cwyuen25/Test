@@ -13,6 +13,8 @@ const ENV_BASES = {
   uat1: 'https://uataksindividuallogin.manulife.com.hk/thf/auth/signIn',
   uat2: 'https://uataksindividuallogin.manulife.com.hk/hk-cws-ee-portal-web-app-2/thf/auth/signIn',
   uat3: 'https://uataksindividuallogin.manulife.com.hk/hk-cws-ee-portal-web-app-3/thf/auth/signIn',
+  stg: 'https://stg-ap.manulife.com.hk/en/individual.html',
+  preprod: 'https://preprod-ap.manulife.com.hk/zh-hk/individual.html',
 };
 
 const $ = (id) => document.getElementById(id);
@@ -329,7 +331,10 @@ async function runAutoTest() {
     alert('Please enter at least one message.');
     return;
   }
-  if (!username || !password) {
+  
+  // STG and PREPROD don't require login
+  const requiresLogin = !['stg', 'preprod'].includes(env);
+  if (requiresLogin && (!username || !password)) {
     alert('Please enter both User ID and Password.');
     return;
   }
@@ -343,10 +348,40 @@ async function runAutoTest() {
 }
 
 /* =========================================
+ * UI Environment Updates
+ * ========================================= */
+function updateUIForEnvironment() {
+  const env = getEnv();
+  const isNoLoginEnv = ['stg', 'preprod'].includes(env);
+  
+  // Disable/enable login-related fields
+  const loginFields = ['username', 'password', 'remember'];
+  loginFields.forEach(id => {
+    const el = $(id);
+    if (el) {
+      if (isNoLoginEnv) {
+        el.disabled = true;
+        // Don't clear any values for STG/PREPROD
+      } else {
+        el.disabled = false;
+      }
+    }
+  });
+  
+  // Update login button
+  const loginBtn = $('login');
+  if (loginBtn) {
+    loginBtn.disabled = isNoLoginEnv;
+    loginBtn.title = isNoLoginEnv ? 'Auto Login not available for this environment' : '';
+  }
+}
+
+/* =========================================
  * Wire-up
  * ========================================= */
 document.addEventListener('DOMContentLoaded', async () => {
   await loadSaved().catch(console.error);
+  updateUIForEnvironment();
 
   const loopInput = $('loop-count');
   if (loopInput) {
@@ -354,7 +389,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     loopInput.value = savedLoopCount;
   }
 
-  $('env')?.addEventListener('change', saveEnvLangRemember);
+  $('env')?.addEventListener('change', async () => {
+    await saveEnvLangRemember();
+    updateUIForEnvironment();
+  });
   $('lang')?.addEventListener('change', saveEnvLangRemember);
 
   $('remember')?.addEventListener('change', async () => {
@@ -448,6 +486,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const remember = $('remember')?.checked ?? false;
     const lang = $('lang')?.value ?? DEFAULT_LANG;
     const env = getEnv();
+    
+    // STG and PREPROD don't support login
+    if (['stg', 'preprod'].includes(env)) {
+      alert('Auto Login is not available for STG and PREPROD environments.');
+      return;
+    }
+    
     if (!username || !password) return alert('Please enter both User ID and Password.');
     try {
       await saveCreds(username, password, remember, lang, env);

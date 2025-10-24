@@ -8,9 +8,9 @@
    * ========================================================== */
   const TAG = '[UAT TEST V3.1]';
 
-  // Match the TFM page across UAT1 (no web-app prefix) and UAT2/3 (with -2/-3), allowing optional trailing segments
+  // Match the TFM page across UAT1 (no web-app prefix) and UAT2/3 (with -2/-3), STG, and PREPROD, allowing optional trailing segments
   const TFM_URL_RE =
-    /^https:\/\/uataksindividuallogin\.manulife\.com\.hk\/(?:hk-cws-ee-portal-web-app-\d+\/)?tfm(?:[\/?#].*)?$/i;
+    /^https:\/\/(uataksindividuallogin\.manulife\.com\.hk\/(?:hk-cws-ee-portal-web-app-\d+\/)?tfm|stg-ap\.manulife\.com\.hk|preprod-ap\.manulife\.com\.hk)(?:[\/?#].*)?$/i;
 
   // Helper so we can centralize the check (reads cleaner in runTest & any SPA hook)
   function isTfmUrl(href) {
@@ -613,9 +613,15 @@
         return { ok: false, reason: 'no messages' };
       }
 
-      // 1) Login (best‑effort)
-      try { await login({ force: true, loginSuccess: config?.loginSuccess }); }
-      catch (e) { warn('Login step warning (continuing):', e); }
+      // 1) Login (best‑effort) - Skip for STG and PREPROD
+      const currentUrl = window.location.href;
+      const isNoLoginEnv = /stg-ap\.manulife\.com\.hk|preprod-ap\.manulife\.com\.hk/i.test(currentUrl);
+      if (!isNoLoginEnv) {
+        try { await login({ force: true, loginSuccess: config?.loginSuccess }); }
+        catch (e) { warn('Login step warning (continuing):', e); }
+      } else {
+        log('Skipping login for STG/PREPROD environment');
+      }
 
       // 2) Wait until the URL is one of the TFM pages (root /tfm, app-2/tfm, app-3/tfm, etc.)
       const waitMs = Number.isFinite(config?.waitForTfmMs) ? config.waitForTfmMs : 60000; // default 60s
