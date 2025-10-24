@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "UAT Auto Test V3.1",
+  "version": "1.3.1",
+  "description": "Auto Login and Auto Send Message",
+
+  "icons": {
+    "16": "logo.png",
+    "32": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
+
+  "action": {
+    "default_title": "Manulife Auto Login",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "logo.png",
+      "32": "logo.png",
+      "48": "logo.png",
+      "128": "logo.png"
+    }
+  },
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+
+  "host_permissions": [
+    "https://uataksindividuallogin.manulife.com.hk/*"
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["refresh.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["https://uataksindividuallogin.manulife.com.hk/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ],
+
+  "minimum_chrome_version": "102"
+}

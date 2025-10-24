@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Manulife Auto Login & Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --popup-width: 392px;
+      --popup-height: 568px;
+
+      --bg: #ffffff;
+      --bg-muted: #f6f7f9;
+      --text: #111417;
+      --text-muted: #606c78;
+      --border: #e5e7eb;
+      --ring: #4c9ffe33;
+      --shadow: 0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
+
+      --accent: #00a870;
+      --accent-600: #009663;
+      --on-accent: #ffffff;
+
+      --danger: #d92c2c;
+
+      --radius-lg: 12px;
+      --radius-md: 10px;
+      --radius-sm: 8px;
+      --space: 12px;
+
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
+              Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --fs-sm: 12px;
+      --fs-md: 13px;
+      --fs-lg: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1214;
+        --bg-muted: #12161a;
+        --text: #e8eaed;
+        --text-muted: #a8b0b7;
+        --border: #26313a;
+        --ring: #60a5fa44;
+        --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.48);
+        --accent: #00b77a;
+        --accent-600: #00a06c;
+        --on-accent: #0a0f0d;
+        --danger: #ff4d4f;
+        --icon-btn: #e8eaed;
+      }
+    }
+
+    html, body { margin: 0; padding: 0; }
+    html { overflow: visible; }
+
+    /* BODY IS THE CARD */
+    body {
+      width: var(--popup-width);
+      min-height: var(--popup-height);
+      box-sizing: border-box;
+      color: var(--text);
+      background: radial-gradient(80% 80% at 50% 0%, rgba(0,0,0,.04), transparent 60%) no-repeat, var(--bg);
+      display: grid;
+      grid-template-rows: auto 1fr auto; /* header / main / footer */
+      gap: var(--space);
+      padding: calc(var(--space) + 2px);
+      border: 1px solid var(--border);
+      /* border-radius: var(--radius-lg); */
+      box-shadow: var(--shadow);
+      overflow: hidden; /* no popup scrollbars */
+      font: 400 var(--fs-md)/1.35 var(--font);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Header */
+    header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: linear-gradient(180deg, rgba(0,0,0,.04), transparent);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    .title { display: grid; gap: 2px; }
+    .title h1 { margin: 0; font-size: 15px; letter-spacing: .2px; }
+    .title p { margin: 0; color: var(--text-muted); font-size: var(--fs-sm); }
+    .accent-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 18%, transparent); }
+
+    /* Main */
+    main { min-height: 0; overflow: hidden; display: grid; grid-template-rows: auto 1fr; gap: var(--space); }
+
+    .panel {
+      padding: 12px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      min-height: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .full { grid-column: 1 / -1; }
+
+    label { display: grid; gap: 6px; font-size: var(--fs-sm); color: var(--text-muted); }
+
+    input[type="text"], input[type="password"], select {
+      appearance: none;
+      padding: 9px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+
+      width: 250px; /* or any desired width */
+      padding: 8px;
+      box-sizing: border-box;
+
+      box-shadow: 0 1px 0 rgba(0,0,0,.03) inset;
+      min-width: 0; width: 100%;
+      transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+    }
+    
+    select {
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+        linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+      background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 28px;
+    }
+    input:focus, select:focus {
+      border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .checkbox { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: var(--fs-sm); }
+
+    /* Buttons (base) */
+    .btn {
+      --btn-bg: var(--bg); --btn-fg: var(--text); --btn-bd: var(--border);
+      padding: 9px 12px; border-radius: var(--radius-sm);
+      border: 1px solid var(--btn-bd); background: var(--btn-bg); color: var(--btn-fg);
+      font-weight: 600; letter-spacing: .2px; cursor: pointer;
+      transition: transform .03s ease, background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
+      box-shadow: 0 1px 0 rgba(0,0,0,.03);
+    }
+    .btn:hover {
+      background: color-mix(in oklab, var(--btn-bg) 88%, var(--accent) 12%);
+      border-color: color-mix(in oklab, var(--btn-bd) 60%, var(--accent) 40%);
+    }
+    .btn:active { transform: translateY(1px); }
+
+    /* Outline red (no fill) — for Clear all */
+    .btn-danger {
+      --btn-bg: transparent;
+      --btn-fg: var(--danger);
+      --btn-bd: var(--danger);
+      background: transparent; color: var(--danger); border-color: var(--danger);
+    }
+    .btn-danger:hover { background: color-mix(in oklab, var(--danger) 10%, transparent 90%); }
+
+    /* Messages: input + simple cross next to it */
+    #messages {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px 6px;
+      align-items: center;  /* keeps cross aligned with input */
+      align-content: start;
+      min-height: 0; overflow: hidden;
+    }
+    #messages input[type="text"][data-msg] { width: 100%; min-width: 0; }
+    #messages button[data-remove] {
+      background: transparent; border: none;
+      color: var(--danger); font-size: 16px; line-height: 1;
+      padding: 2px 6px; width: auto; height: auto; cursor: pointer;
+    }
+    #messages button[data-remove]:hover { color: color-mix(in oklab, var(--danger) 85%, #000 15%); }
+
+    .panel-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+    footer { display: flex; gap: 8px; justify-content: flex-end; padding-top: 2px; }
+    .hr { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent);  }
+
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    /* Align the icon button nicely with your existing .btn */
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;          /* tighter padding for an icon-only button */
+      line-height: 1;
+      vertical-align: middle;
+      margin-left: 6px;      /* space from "Run Auto Test" */
+    }
+
+    /* Simple spin feedback on click */
+    .icon-btn.spin svg { animation: spin .6s linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  /* --- Session ID UI styles --- */
+  .session-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .session-id-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 8px;
+    font: 13px/1.25 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    color: #222;
+    background: #f7f7f7;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    /* Cannot edit, but user can still select for manual copy if needed */
+    cursor: default;
+  }
+  .session-id-input[readonly] {
+    user-select: all;
+  }
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #26313a;
+    border-radius: 4px;
+    /* color: #333; */
+    color: var(--icon-btn);
+    cursor: pointer;
+  }
+  .icon-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .session-updated {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #666;
+  }
+  </style>
+</head>
+
+<body>
+  <!-- <header>
+    <div class="accent-dot" aria-hidden="true"></div>
+    <div class="title">
+      <h1>Manulife Auto Login &amp; Test</h1>
+    </div>
+  </header> -->
+
+  <main>
+
+  <!-- Chatbot Session ID Section (no refresh, copy icon, read-only input) -->
+  <section aria-labelledby="chatbot-session-title">
+    <h4 id="chatbot-session-title">Chatbot Session ID</h4>
+
+    <div class="session-row">
+      <!-- Read-only input (cannot be edited) -->
+      <input
+        id="chatbot-session-id"
+        class="session-id-input"
+        type="text"
+        value="—"
+        readonly
+        aria-label="Chatbot session ID"
+        title="Not available"
+      />
+
+      <!-- Copy button with icon (enabled when a real value exists) -->
+      <button
+        id="copy-session-id"
+        class="icon-btn btn"
+        type="button"
+        title="Copy session ID"
+        aria-label="Copy session ID"
+        disabled
+      >
+        <!-- Inline SVG: Copy icon -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16" height="16"
+          viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          aria-hidden="true" focusable="false"
+        >
+          <!-- Base doc -->
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <!-- Overlapped doc -->
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div id="chatbot-session-updated" class="session-updated" aria-live="polite"></div>
+  </section>
+
+
+
+    <!-- MESSAGES / AUTO TEST -->
+    <section class="panel" style="display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <h3 style="margin:0; font-size: var(--fs-lg);">Auto Test</h3>
+        <div class="panel-actions">
+          <button id="run-test" type="button" class="btn">Run Auto Test</button>
+          
+          <!-- Place this RIGHT AFTER the existing Run Auto Test button -->
+          <!-- <button id="refresh-test"
+                  class="btn icon-btn"
+                  type="button"
+                  aria-label="Re-run Auto Test"
+                  title="Re-run Auto Test"
+                  style="width: 35px; height: 35px; border-radius: 8px;"> -->
+            <!-- Inline refresh icon -->
+            <!-- <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 8 8h-2a6 6 0 1 1-6-6c1.66 0 3.14.69 4.22 1.78L14 10h6V4l-2.35 2.35z"
+                    fill="currentColor"/>
+            </svg>
+          </button> -->
+
+
+        </div>
+      </div>
+      <div class="hr"></div>
+
+
+
+      <div id="messages" style="margin-top:8px;">
+        <!-- rows are injected by popup.js as: input[data-msg] + button[data-remove] (with ✕ text) -->
+      </div>
+
+
+        <div class="panel-actions" style="display:flex; gap:8px; align-items:center; justify-content:space-between;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="loop-count" style="font-size: var(--fs-sm); color: var(--text-muted);">Loop: </label>
+            <input id="loop-count" type="number" min="1" max="500" value="1" style="width:100px; padding:9px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; box-sizing: border-box; font-size: var(--fs-md);" />
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="add-msg" type="button" class="btn">Add Msg</button>
+            <button id="clear-msgs" type="button" class="btn btn-danger">Clear</button>
+          </div>
+        </div>
+
+    </section>
+
+
+    <!-- LOGIN PANEL -->
+
+    <section class="panel">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+          <h3 style="margin:0; font-size: var(--fs-lg);">Auto Login</h3>
+          <div class="panel-actions">
+            <button id="login" type="button" class="btn">Auto Login</button>
+          </div>
+        </div>
+      <div class="hr"></div>
+
+      <div class="grid">
+        <label class="full">Environment
+          <select id="env">
+            <option value="uat1">UAT 1</option>
+            <option value="uat2">UAT 2</option>
+            <option value="uat3" selected>UAT 3</option>
+          </select>
+        </label>
+
+        <label class="full">Language
+          <select id="lang">
+            <option value="en_US">English</option>
+            <option value="zh_TW">繁體中文</option>
+            <option value="zh_CN" selected>简体中文</option>
+          </select>
+        </label>
+
+        <label class="full">User ID
+          <input id="username" type="text" autocomplete="username" />
+        </label>
+
+        <label class="full">Password
+          <input id="password" type="text" autocomplete="current-password" />
+        </label>
+
+        <div class="checkbox full">
+          <input id="remember" type="checkbox" />
+          <span>Remember credentials (store persistently)</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
