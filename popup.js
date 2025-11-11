@@ -387,6 +387,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (loopInput) {
     const savedLoopCount = await loadLoopCount();
     loopInput.value = savedLoopCount;
+    
+    // Save loop count when it changes
+    const saveLoopCountDebounced = debounce(async () => {
+      let loopCount = parseInt(loopInput.value, 10);
+      if (isNaN(loopCount) || loopCount < 1) loopCount = 1;
+      if (loopCount > 500) loopCount = 500;
+      loopInput.value = loopCount; // enforce in UI
+      await saveLoopCount(loopCount);
+      dlog('Loop count auto-saved:', loopCount);
+    }, 300);
+
+    // Wire up auto-save for loop count input
+    loopInput.addEventListener('input', saveLoopCountDebounced, { passive: true });
+    loopInput.addEventListener('change', async () => {
+      let loopCount = parseInt(loopInput.value, 10);
+      if (isNaN(loopCount) || loopCount < 1) loopCount = 1;
+      if (loopCount > 500) loopCount = 500;
+      loopInput.value = loopCount; // enforce in UI
+      await saveLoopCount(loopCount);
+      dlog('Loop count saved on change:', loopCount);
+    }, { passive: true });
+    loopInput.addEventListener('focusout', async () => {
+      let loopCount = parseInt(loopInput.value, 10);
+      if (isNaN(loopCount) || loopCount < 1) loopCount = 1;
+      if (loopCount > 500) loopCount = 500;
+      loopInput.value = loopCount; // enforce in UI
+      await saveLoopCount(loopCount);
+      dlog('Loop count saved on blur:', loopCount);
+    }, { passive: true });
   }
 
   $('env')?.addEventListener('change', async () => {
