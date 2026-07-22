@@ -1,0 +1,209 @@
+Tripolr - Revised CCMF Application Description
+
+項目管理團隊 (審批比重: 30%)
+
+Applicant and role
+Name: Yuen Chi Wang
+Role: Founder and Project Lead
+
+Yuen Chi Wang leads Tripolr and is responsible for product strategy, requirements definition, prototype development, testing, project coordination, and delivery. He has two years of experience as a Business Analyst in the banking and insurance industry, covering requirements analysis, process improvement, stakeholder communication, user acceptance testing, and project coordination. This experience is directly relevant to converting user needs into testable product requirements and managing delivery against defined milestones.
+
+Yuen also has practical development experience with Next.js, FastAPI, PostgreSQL, Docker, and Cloudflare Tunnel. With the support of AI coding agents, he has built and deployed an online Tripolr web prototype. The prototype is currently in user acceptance testing and has been tested by approximately ten users.
+
+Current prototype capabilities
+The current prototype includes:
+1. Saving and organising travel places;
+2. Extracting place information from Instagram and Threads content;
+3. AI-assisted itinerary generation;
+4. Real-time place collection; and
+5. Collaborative trip editing.
+
+The initial UAT indicates that the core functions are technically workable, while the user journey, onboarding, navigation, and overall usability require improvement. During the CCMF project, Yuen will convert each UAT finding into a prioritised backlog with acceptance criteria, test cases, and release targets.
+
+Founder commitment and delivery model
+Yuen dedicates approximately 30 hours per week to Tripolr. He will personally own product management, requirements, development direction, UAT, quality control, and pilot evaluation. Specialist work in UI/UX, security review, quality assurance, and selected development tasks will be procured where necessary under written scopes, milestones, budgets, deliverables, and acceptance criteria.
+
+This delivery structure allows the founder to retain control of the product and core knowledge while obtaining specialist support in areas that require additional expertise. The project will not rely on the recruitment of a full-time co-founder to complete the six-month CCMF plan. In parallel, Yuen will continue identifying potential technical, commercial, and travel-industry partners for the longer-term development of Tripolr.
+
+Execution readiness
+Tripolr has already progressed beyond the idea stage. A deployed prototype, an initial group of testers, an identified UAT backlog, a proposed six-month development plan, and a defined funding allocation are in place. The immediate execution objective is to transform the present UAT prototype into a stable and market-testable web MVP within three months of funding commencement.
+
+
+商業模式及投入市場時間 (審批比重: 30%)
+
+Problem and value proposition
+Tripolr is an AI-assisted collaborative travel-planning platform that helps groups turn scattered travel ideas and different preferences into one practical, editable itinerary.
+
+Group travellers commonly move between social media, maps, messaging applications, notes, spreadsheets, and booking websites. Places are saved in different formats, decisions are discussed repeatedly, and manually selected attractions may not form a realistic route. Tripolr brings place collection, group collaboration, itinerary generation, and trip editing into one shared workflow.
+
+Beachhead target market
+Tripolr's initial beachhead will be Hong Kong university students planning independent outbound group trips with friends. This segment is suitable for early validation because group members frequently discover places through social media, plan collaboratively, and need to balance different interests, schedules, and limited budgets.
+
+Hong Kong families planning outbound trips will be the second validation segment. Families face similar coordination problems but often require additional consideration of travel pace, children, older family members, accessibility, and schedule reliability. The product will first establish a simple collaboration workflow with student groups before extending testing to family use cases.
+
+Product scope
+Available in the current prototype:
+- Place saving and organisation;
+- Instagram and Threads place extraction;
+- AI-assisted itinerary generation;
+- Real-time place collection; and
+- Collaborative trip editing.
+
+To be developed or strengthened during CCMF:
+- Simpler onboarding and core user journeys;
+- Structured collection of group preferences;
+- Clearer handling of conflicting preferences;
+- Itinerary optimisation using location and estimated travel time;
+- More flexible editing and partial regeneration;
+- Dynamic alternatives when a planned activity changes;
+- Improved stability, security, privacy controls, and analytics.
+
+Longer-term scope after CCMF validation:
+- Mobile application development;
+- Travel-industry partnerships;
+- Booking and payment integrations; and
+- Business solutions for organisations that manage group travel.
+
+Business model
+Tripolr's core planning and collaboration functions will remain free during the validation stage to reduce adoption barriers and encourage multi-user participation. The first commercial hypothesis is that users who have completed a collaborative itinerary demonstrate stronger booking intent and may convert to relevant accommodation, transport, attraction, activity, or travel-insurance referrals.
+
+The planned commercial sequence is:
+Phase 1 - CCMF validation: free planning and collaboration, with measurement of usage, retention, collaboration, and booking interest.
+Phase 2 - Referral validation: affiliate or referral links for selected high-intent travel categories.
+Phase 3 - Commercial integration: direct partnerships and deeper booking integrations after user demand has been demonstrated.
+Phase 4 - Additional opportunities: clearly labelled sponsored placements and separately validated B2B group-planning solutions.
+
+Any sponsored content or paid recommendation will be clearly identified. Commercial relationships will not be presented as independent AI recommendations.
+
+Go-to-market strategy
+The initial pilot will use focused, low-cost channels:
+- University communities and student societies;
+- Personal and alumni networks;
+- Travel-related online communities;
+- Short-form product demonstrations showing the journey from social content to a shared itinerary; and
+- Referrals between users who invite travel companions into a trip.
+
+The first pilot will prioritise Hong Kong university student groups. Family testing will follow after the core workflow has been simplified. Potential partnerships with student organisations, travel content creators, travel communities, and service providers will be explored after the pilot provides evidence of user needs and engagement.
+
+Time to market
+Months 1 to 3: market-testable MVP
+- Convert current UAT findings into a prioritised product backlog;
+- Redesign onboarding and the core place-to-itinerary journey;
+- Fix critical bugs and improve performance;
+- Strengthen collaborative planning and itinerary editing;
+- Introduce structured preference collection and basic route-aware optimisation;
+- Complete security, privacy, and quality checks; and
+- Release a stable web MVP for pilot use by the end of Month 3.
+
+Months 4 to 6: market validation
+- Recruit at least 50 pilot users, with emphasis on active trip planners rather than registrations alone;
+- Aim to support at least 20 actively planned trips and at least 10 multi-user trips;
+- Measure core-flow completion, collaborator invitations, itinerary generation, return editing, and user feedback;
+- Test interest in booking-related services;
+- Improve product quality based on observed behaviour; and
+- Produce a documented launch and commercial-validation plan.
+
+The numerical targets are pilot objectives, not statements of current traction. Baseline conversion and engagement rates will be established during the first structured pilot.
+
+Key pilot measures
+- Number of active trip planners;
+- Number and proportion of multi-user trips;
+- Completion of the place-collection-to-itinerary flow;
+- Time required to create a first itinerary;
+- Return visits to edit an existing trip;
+- Number of collaborators per group trip;
+- User satisfaction and usability feedback; and
+- Expressed interest in booking or referral functions.
+
+Use of CCMF funding
+The proposed HK$100,000 allocation is:
+- Development: HK$42,000;
+- UI/UX design: HK$18,000;
+- Cloud services and APIs: HK$12,000;
+- Security and quality assurance: HK$8,000;
+- User testing: HK$6,000;
+- Pilot marketing: HK$8,000; and
+- Legal and privacy support: HK$6,000.
+
+No founder salary is included. Funds will be directed to product readiness, technical quality, validation, and market preparation.
+
+Key risks and mitigation
+Third-party platform dependency: Social-platform input methods may change. Tripolr will avoid making the whole product dependent on one platform and will support alternative link or manual place-entry methods.
+
+Information accuracy: Opening hours, prices, availability, and entry requirements may change. Recommendations will show appropriate cautions and encourage users to verify important details.
+
+AI output quality: AI suggestions may be incomplete or unsuitable. Users will remain able to review, edit, accept, or reject recommendations. Testing and feedback will be used to improve prompts, rules, and quality checks.
+
+API and cloud costs: Usage and cost will be monitored during the pilot. Expensive operations will be limited, cached, or redesigned where appropriate.
+
+Founder capacity: The founder will retain ownership of priorities and acceptance testing, while clearly scoped specialist tasks may be outsourced to protect the six-month timeline.
+
+
+所建議項目、產品及服務的創意及創新元素 (審批比重: 30%)
+
+Tripolr's innovation is not limited to asking AI to write an itinerary. Its objective is to connect the full group-planning workflow: convert fragmented travel inspiration into structured places, collect the preferences of multiple travellers, arrange selected places under practical constraints, and help the group adapt the plan when circumstances change.
+
+1. Social inspiration to structured trip data
+Travellers often discover places through Instagram and Threads, but saved posts, screenshots, and shared links are difficult to organise. Tripolr extracts relevant place information from supported social content and places it directly into a shared trip. Users can then review and organise the extracted places instead of searching for every location again.
+
+This capability is available in the current prototype and creates a direct connection between travel discovery and planning.
+
+2. Collaborative preference reconciliation
+Most generic AI travel tools respond to one prompt or one user. Tripolr is designed around a shared trip containing contributions from multiple travellers.
+
+During CCMF, Tripolr will strengthen structured preference collection so group members can indicate interests, budgets, travel pace, scheduling constraints, and preferred places. The system will help identify common choices and conflicts and support the group in producing a balanced plan. Users will remain in control and may edit or reject proposed compromises.
+
+3. Constraint-aware itinerary construction
+A list of attractive places is not necessarily a workable itinerary. Tripolr will combine selected places with practical constraints such as location, estimated travel time, available trip duration, user preferences, and place information. Nearby places can be grouped together, while unrealistic combinations can be highlighted or reorganised.
+
+The aim is to combine AI-assisted recommendations with explicit travel constraints rather than return only generic destination text.
+
+4. Editable and partial replanning
+Travel plans change because of delays, availability, weather, schedule changes, or new group decisions. Regenerating the entire itinerary can destroy choices that the group has already accepted.
+
+Tripolr will develop flexible editing and partial replanning so the affected part of an itinerary can be adjusted while preserving as much of the accepted plan as possible. Alternatives can be filtered using available time, location, budget, and group preferences.
+
+5. Human-controlled planning workflow
+Tripolr will distinguish between extracted information, AI-generated suggestions, and user-confirmed decisions. Users will review and edit their itineraries, and important travel details will not be presented as guaranteed facts. This human-controlled approach is intended to make AI useful for group decisions without removing user judgement.
+
+Technical approach
+The intended planning workflow consists of:
+1. User input through social links, saved places, or manual entry;
+2. Extraction and normalisation of place information;
+3. Location matching and information checks where supported;
+4. Collection of trip constraints and group preferences;
+5. AI-assisted recommendation and itinerary construction;
+6. Route and travel-time checks;
+7. User review, collaboration, and editing; and
+8. Partial replanning when requirements change.
+
+The product may combine deterministic rules, data from third-party services, optimisation logic, and AI-generated suggestions. The project will test which method is most reliable for each decision rather than use AI for every operation.
+
+Competitive positioning
+Tripolr is positioned as a free collaborative planning layer between travel inspiration and booking. Manual combinations such as messaging applications, maps, and spreadsheets support discussion but require users to organise information themselves. General AI assistants can generate itinerary text but are not designed as a persistent shared trip workspace. Booking-led applications support transactions but may not focus on reconciling group preferences before booking.
+
+Tripolr's intended differentiation is the connected workflow from social discovery to structured places, multi-user decision-making, route-aware itinerary editing, and adaptive replanning. The CCMF project will validate whether this combination produces sufficient user value and repeat behaviour.
+
+
+社會責任 (審批比重: 10%)
+
+Tripolr will focus its social-responsibility commitments on free core access, responsible AI, privacy, and inclusive planning.
+
+1. Free access to core planning
+Core place collection, itinerary planning, and collaboration will remain free during the validation stage. This lowers the barrier for university students, families, and budget-conscious travellers to use structured planning tools without a subscription.
+
+2. Responsible and transparent AI
+AI-generated outputs will be presented as suggestions rather than guaranteed facts. Users will be able to review, edit, accept, or reject recommendations. Tripolr will encourage verification of important details such as opening hours, prices, availability, transport arrangements, and entry requirements.
+
+Tripolr will distinguish sponsored or paid content from independent planning suggestions. Commercial relationships will be clearly labelled to preserve user trust.
+
+3. Privacy and permission controls
+Collaborative travel planning can involve preferences, locations, schedules, and other personal information. Tripolr will collect only information needed to provide the service, implement appropriate access controls, and give users control over who can view or edit a shared trip. Privacy and data-handling requirements will be reviewed as part of the CCMF development plan.
+
+4. Inclusive and practical planning
+Where users provide relevant needs, the planning workflow will consider budget, travel pace, available time, and accessibility requirements. This can support groups with different ages, mobility needs, or scheduling constraints. Recommendations will remain subject to user review.
+
+5. More efficient routes
+By grouping nearby places and considering travel time, Tripolr aims to reduce unnecessary movement, avoid unrealistic schedules, and help users make more efficient use of time and transport. Environmental or cost benefits will be treated as potential outcomes and will not be claimed without supporting measurement.
+
+Through these commitments, Tripolr aims to make collaborative travel planning more accessible and transparent while maintaining human control over AI-assisted decisions.
