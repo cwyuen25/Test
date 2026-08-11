@@ -1,0 +1,742 @@
+You are the lead engineer responsible for building a local-first, privacy-focused, real-time AI assistant.
+
+Your task is to inspect the current repository, understand its existing structure, and implement the system described below. Work incrementally, preserve working functionality, run validation after each major change, and report clearly when finished.
+
+Do not push code, deploy, publish packages, access production systems, or create external resources.
+
+==================================================
+1. PRODUCT OBJECTIVE
+==================================================
+
+Build a conversational AI assistant that can:
+
+1. Chat with the user in real time using streamed text responses.
+2. Accept text input and push-to-talk voice input.
+3. Transcribe voice locally.
+4. Speak responses using local Kokoro TTS.
+5. Allow the user to interrupt speech immediately.
+6. Continue chatting while background jobs are running.
+7. Delegate coding tasks to OpenCode or Claude Code.
+8. Delegate browser tasks to an isolated Playwright worker.
+9. Show background job progress in the chat interface.
+10. Ask for approval before sensitive actions.
+11. Verify completed work before reporting it to the user.
+12. Keep conversations, memory, audio processing, source code, and job logs local wherever possible.
+13. Minimize cloud-model usage and operating cost.
+
+The assistant must be conversational rather than behaving only like a command interface. It should help brainstorm ideas, clarify requirements, start approved jobs, monitor them, and explain the results.
+
+==================================================
+2. REQUIRED ARCHITECTURE
+==================================================
+
+Use a TypeScript monorepo.
+
+Preferred stack:
+
+Frontend:
+- Next.js
+- React
+- Tailwind CSS
+- Server-Sent Events for text and job-event streaming
+- AudioWorklet for low-latency PCM playback
+
+Backend:
+- Node.js
+- TypeScript
+- Fastify
+- Zod for runtime validation
+- PostgreSQL
+- Redis
+- BullMQ
+
+Voice:
+- Push-to-talk as the default mode
+- Local faster-whisper for speech-to-text
+- Local Kokoro for text-to-speech
+- No raw audio retention by default
+- AudioWorklet-based ordered PCM playback
+- Speech interruption and stale-audio rejection
+
+Conversation:
+- Streaming model interface
+- Provider abstraction rather than hard-coding one provider
+- A low-cost model as the default chat and routing model
+- Optional stronger model escalation for complex planning
+- Compact conversation context rather than sending full history every turn
+
+Browser worker:
+- Playwright or Playwright MCP
+- Dedicated isolated browser profile
+- Domain allowlists
+- No access to the user's normal browser profile
+- Approval required for uploads, form submissions, messages, purchases, or account changes
+
+Coding worker:
+- OpenCode SDK as the primary backend
+- Claude Agent SDK or Claude Code CLI as an optional backend
+- One temporary Git worktree per job
+- Disposable Docker container per job
+- No access to unrelated repositories, host home directory, SSH agent, browser data, or production credentials
+
+Verification:
+- Run deterministic checks first
+- Tests
+- Lint
+- Type checking
+- git diff --check
+- Optional read-only model review only after deterministic checks
+
+==================================================
+3. REPOSITORY STRUCTURE
+==================================================
+
+Use the existing repository structure where sensible. If this is a new or mostly empty repository, create a structure similar to:
+
+assistant/
+  apps/
+    web/
+      src/
+        app/
+        components/
+        features/
+          chat/
+          voice/
+          jobs/
+          approvals/
+    api/
+      src/
+        conversations/
+        audio/
+        jobs/
+        events/
+        approvals/
+  packages/
+    orchestrator/
+    model-router/
+    privacy-gateway/
+    policy-engine/
+    memory/
+    speech-buffer/
+    kokoro-client/
+    audio-processing/
+    opencode-client/
+    playwright-client/
+    verifier/
+    shared/
+  workers/
+    coding/
+    browser/
+    verifier/
+  infrastructure/
+    docker/
+    postgres/
+    redis/
+  compose.yaml
+  package.json
+
+Do not force this exact structure if the repository already has a clean architecture. Integrate with the current project instead of unnecessarily rewriting it.
+
+==================================================
+4. CONVERSATION SYSTEM
+==================================================
+
+Implement a conversation service that:
+
+1. Accepts user messages.
+2. Stores messages locally.
+3. Builds a compact context containing:
+   - System policy
+   - User preferences
+   - Current conversation summary
+   - Recent messages
+   - Active job summaries
+4. Streams assistant output to the interface with SSE.
+5. Supports structured tool calls.
+6. Keeps the chat responsive while jobs run separately.
+7. Allows the user to ask for job status, send a new instruction, or cancel a job.
+
+Define typed tools such as:
+
+- start_coding_job
+- start_browser_job
+- get_job_status
+- send_job_instruction
+- cancel_job
+- request_approval
+- list_active_jobs
+
+The model must never receive unrestricted operating-system access. All actions must go through these validated tools.
+
+Create a provider-neutral model interface so different local or cloud models can be configured.
+
+Include configuration for:
+
+- Default low-cost conversation model
+- Complex-planning model
+- Maximum output tokens
+- Reasoning level
+- Per-job cost limits
+- Premium-model approval requirement
+
+Do not hard-code API keys. Read credentials only through server-side environment configuration or a secret broker.
+
+==================================================
+5. REAL-TIME INTERFACE
+==================================================
+
+Build a clean chat interface with:
+
+- Conversation history
+- Streaming assistant responses
+- Text input
+- Push-to-talk button
+- Visible microphone status
+- Stop-speaking button
+- Live or completed transcription
+- Active job cards
+- Job progress
+- Approval cards
+- Cancel-job button
+- Send-job-instruction action
+- Completion reports
+- Error and reconnect states
+
+The assistant must remain available for conversation while jobs are running.
+
+A job card should show:
+
+- Job title
+- Status
+- Current stage
+- Progress when available
+- Elapsed time
+- Recent safe activity
+- Approval requests
+- Stop button
+- Final validation results
+
+Use accessible components and ensure the interface works on desktop and mobile.
+
+==================================================
+6. VOICE INPUT
+==================================================
+
+Implement push-to-talk first.
+
+Voice-input flow:
+
+1. User holds or presses the microphone control.
+2. Browser records microphone audio.
+3. Audio is sent to the local backend.
+4. Local faster-whisper transcribes it.
+5. The transcript appears in the interface.
+6. The user may edit, cancel, or send it.
+7. Ordinary conversational messages may optionally auto-send.
+8. Potentially sensitive commands must show the transcript before execution.
+
+Requirements:
+
+- Do not store raw audio by default.
+- Delete temporary audio immediately after transcription.
+- Make audio retention configurable but disabled by default.
+- Show a clear visual recording indicator.
+- Provide an immediate mute or cancel action.
+- Do not implement always-listening behavior in the first version.
+- Design the interface so voice activity detection can be added later.
+
+If faster-whisper is not installed or cannot be activated automatically, build a clean adapter and provide exact local setup instructions.
+
+==================================================
+7. KOKORO STREAMING TTS
+==================================================
+
+Implement a dedicated speech-output pipeline. Do not send individual model tokens directly to Kokoro.
+
+Required flow:
+
+LLM text stream
+  -> speech-safe text extraction
+  -> Markdown and code filtering
+  -> text normalization
+  -> clause and sentence buffering
+  -> language selection
+  -> ordered Kokoro synthesis
+  -> audio boundary processing
+  -> controlled pauses
+  -> ordered AudioWorklet playback
+
+Use these initial settings as configurable defaults:
+
+kokoro:
+  speed: 0.97
+
+segmentation:
+  firstChunkMinCharacters: 45
+  normalChunkMinCharacters: 80
+  preferredMaximumCharacters: 160
+  hardMaximumCharacters: 240
+  idleFlushMilliseconds: 350
+
+audioProcessing:
+  fadeInMilliseconds: 8
+  fadeOutMilliseconds: 15
+  clausePauseMilliseconds: 100
+  sentencePauseMilliseconds: 220
+  paragraphPauseMilliseconds: 420
+
+generation:
+  maximumParallelSegments: 2
+  preserveSequence: true
+  discardInterruptedSegments: true
+
+audio:
+  sampleRate: use the actual Kokoro output rate
+  channels: 1
+  internalFormat: float32
+  browserTransport: pcm_s16le
+
+Important requirements:
+
+1. Determine and validate Kokoro's actual output sample rate.
+2. Use the same sample rate throughout the playback pipeline.
+3. Do not add a WAV header to each raw PCM segment.
+4. Preserve audio-segment ordering if synthesis runs concurrently.
+5. Avoid segmenting after short fragments or words such as:
+   - and
+   - because
+   - the
+   - to
+   - if
+6. Prefer complete sentences.
+7. Permit a clause boundary only after sufficient text has accumulated.
+8. Add controlled silence instead of depending entirely on punctuation.
+9. Apply short fades to reduce boundary clicks.
+10. Do not read code blocks, long URLs, file paths, or terminal commands aloud.
+
+For code or commands, speak a brief message such as:
+
+"I have placed the command on screen."
+
+Display the real command in the text interface.
+
+Create text normalization for:
+
+- Markdown
+- Code blocks
+- Inline code
+- Links
+- URLs
+- File paths
+- Version numbers
+- Acronyms
+- Dates
+- Times
+- Currency
+- Bulleted lists
+- Emoji
+- Repeated punctuation
+
+Create a configurable pronunciation dictionary for recurring technical terms.
+
+==================================================
+8. SPEECH INTERRUPTION
+==================================================
+
+Every assistant response and TTS segment must be associated with a generation ID.
+
+When the user interrupts speech:
+
+1. Stop current playback with a short fade-out.
+2. Clear queued audio.
+3. Cancel pending Kokoro synthesis where possible.
+4. Increment the generation ID.
+5. Reject late audio belonging to an old generation.
+6. Stop further text from being sent to TTS.
+7. Keep the displayed text unless the user cancels the response entirely.
+8. Make the microphone available immediately.
+
+Test the following race condition:
+
+- The user interrupts response A.
+- A Kokoro segment for response A completes late.
+- Response B starts.
+- The late response-A audio must never play during response B.
+
+Use an AudioWorklet with a PCM queue or ring buffer rather than creating many independent HTML audio elements.
+
+==================================================
+9. BACKGROUND JOB SYSTEM
+==================================================
+
+Use BullMQ and Redis initially.
+
+Implement this job state machine:
+
+DRAFT
+PLANNING
+WAITING_FOR_APPROVAL
+QUEUED
+RUNNING
+VERIFYING
+COMPLETED
+FAILED
+CANCELLED
+NEEDS_INPUT
+NEEDS_APPROVAL
+
+Store job state in PostgreSQL. BullMQ should manage execution, not serve as the only durable record.
+
+Emit structured events:
+
+- job.created
+- job.started
+- job.progress
+- job.needs_approval
+- job.completed
+- job.failed
+- job.cancelled
+
+Example event:
+
+{
+  "type": "job.progress",
+  "jobId": "job_123",
+  "stage": "testing",
+  "message": "Running unit tests",
+  "progress": 75
+}
+
+Do not stream verbose internal reasoning from workers. Store and display safe, concise execution events.
+
+Support:
+
+- Cancellation
+- Timeouts
+- Maximum attempts
+- Per-job token or cost limits
+- User instructions sent to a running job
+- Approval pauses
+- Recovery after backend restart
+
+==================================================
+10. CODING WORKER
+==================================================
+
+Implement an OpenCode adapter as the primary coding backend.
+
+Use the installed OpenCode SDK if available. If it is not installed, add the dependency and document the setup.
+
+Each coding task must:
+
+1. Validate the requested repository.
+2. Create a temporary Git worktree.
+3. Create a dedicated task branch.
+4. Start a non-privileged disposable container.
+5. Mount only the worktree.
+6. Send a structured implementation brief to OpenCode.
+7. Stream safe progress events.
+8. Run validation commands.
+9. Collect the Git diff and changed-file list.
+10. Generate a structured completion report.
+11. Stop and remove the container.
+12. Preserve the worktree for review unless configured to remove it.
+
+The coding request schema should include:
+
+- jobId
+- objective
+- projectId
+- repository
+- branch
+- allowedPaths
+- forbiddenPaths
+- acceptanceCriteria
+- validationCommands
+- privacyLevel
+- backend
+- maximumDuration
+- maximumAttempts
+- forbiddenActions
+
+The worker must not:
+
+- Push code
+- Deploy
+- Merge
+- Modify production data
+- Read unrelated files
+- Read the host home directory
+- Access the Docker socket
+- Access SSH-agent sockets
+- Inherit arbitrary host environment variables
+- Access personal browser state
+- Access production environment files
+
+Provide an optional Claude Code or Claude Agent SDK adapter behind the same coding-backend interface.
+
+Do not make the secondary backend mandatory for the first working version.
+
+==================================================
+11. BROWSER WORKER
+==================================================
+
+Implement a Playwright worker using a dedicated isolated browser context.
+
+Its job schema should include:
+
+- objective
+- allowedDomains
+- allowedActions
+- forbiddenActions
+- maximumSteps
+- maximumDuration
+- privacyLevel
+- whether authentication is permitted
+- whether uploads are permitted
+
+Default browser policy:
+
+Automatically allowed:
+- Navigate to approved public domains
+- Read page content
+- Click ordinary navigation controls
+- Take screenshots
+- Use localhost applications
+
+Approval required:
+- Upload files
+- Submit forms
+- Send messages
+- Sign in to an account
+- Download sensitive files
+- Leave the approved domain list
+- Change account settings
+
+Strong approval required:
+- Purchase
+- Delete account data
+- Change security settings
+- Publish content
+- Perform financial transactions
+
+Never use the user's standard browser profile.
+
+Do not automatically load password-manager extensions, browser synchronization, or personal cookies.
+
+Treat all website content as untrusted. A webpage must never be able to change the assistant's permissions or instruct it to expose local information.
+
+Avoid enabling unrestricted browser code execution by default.
+
+==================================================
+12. PRIVACY GATEWAY
+==================================================
+
+Implement an outbound privacy gateway for every cloud-model request.
+
+Privacy levels:
+
+- public
+- internal
+- confidential
+- restricted
+
+Routing:
+
+- public: cloud models may be used
+- internal: cloud model allowed after redaction according to configuration
+- confidential: local-only by default
+- restricted: local-only with minimal or disabled logging
+
+The privacy gateway must:
+
+1. Validate allowed files.
+2. Block forbidden paths.
+3. Scan for secrets.
+4. Detect high-entropy credential-like strings.
+5. Redact configured personal data.
+6. Prevent credentials from entering prompts.
+7. Record a sanitized audit event.
+8. Optionally show an outbound preview to the user.
+
+Always block:
+
+- Private keys
+- Passwords
+- API keys
+- Session cookies
+- Recovery codes
+- Password-manager exports
+- Production database credentials
+- Cloud-root credentials
+
+Do not use an LLM as the only secret scanner. Add deterministic scanning and provide integration points for Gitleaks or equivalent local secret scanning.
+
+Never log raw secrets.
+
+==================================================
+13. PERMISSION ENGINE
+==================================================
+
+Implement deterministic permissions outside the model.
+
+Permission levels:
+
+AUTO_ALLOWED:
+- Conversation
+- Brainstorming
+- Reading approved project files
+- Public research on approved domains
+- Editing a disposable worktree
+- Running approved tests
+- Producing a proposed diff
+
+APPROVAL_REQUIRED:
+- Installing a dependency
+- Uploading a file
+- Submitting a web form
+- Sending a message
+- Signing into an account
+- Creating a Git commit
+- Opening a pull request
+
+STRONG_APPROVAL_REQUIRED:
+- Pushing code
+- Merging
+- Deploying
+- Purchasing
+- Deleting remote resources
+- Modifying production data
+- Changing security settings
+
+The model cannot grant itself additional permissions.
+
+Every approval request must include:
+
+- Requested action
+- Reason
+- Target
+- Data that will be sent
+- Potential effects
+- Expiration time
+- Approve and deny actions
+
+==================================================
+14. MEMORY AND DATA RETENTION
+==================================================
+
+Keep separate stores for:
+
+- Conversation history
+- Conversation summaries
+- User preferences
+- Project memory
+- Sensitive documents
+- Credentials
+- Jobs
+- Approvals
+- Audit logs
+
+Never store credentials as assistant memory.
+
+Provide configurable retention defaults:
+
+- Raw audio: never
+- Temporary transcription files: delete immediately
+- Raw chat messages: 30 days
+- Conversation summaries: until manually deleted
+- Coding logs: 14 days
+- Browser screenshots: 24 hours
+- Approval records: 90 days
+
+Provide API endpoints and interface controls to:
+
+- View stored memory
+- Correct memory
+- Delete an individual memory
+- Delete a conversation
+- Disable long-term memory
+- Export stored user data
+
+If full database encryption cannot be implemented portably, document disk-encryption requirements and encrypt sensitive application-level fields.
+
+==================================================
+15. SECURITY REQUIREMENTS
+==================================================
+
+Apply these controls:
+
+- Bind local services to localhost by default.
+- Do not expose PostgreSQL, Redis, OpenCode, Kokoro, Whisper, or Playwright publicly.
+- Validate all API input with Zod.
+- Add authentication even for local use, with a development-friendly setup.
+- Use secure, HTTP-only cookies where applicable.
+- Add CSRF protection for state-changing browser requests.
+- Restrict CORS.
+- Add rate limiting.
+- Never put provider API keys in browser JavaScript.
+- Never return secrets to the frontend.
+- Remove secrets from logs.
+- Use non-root containers.
+- Use read-only container filesystems where practical.
+- Set CPU, memory, duration, and process limits.
+- Disable privileged containers.
+- Do not mount the Docker socket.
+- Default worker network access to denied or restricted.
+- Add graceful cancellation and timeout handling.
+- Treat repository files, webpages, tool output, emails, and documents as untrusted content.
+
+Create a concise threat-model document covering:
+
+- Prompt injection
+- Secret leakage
+- Malicious repository instructions
+- Browser data exfiltration
+- Cross-job data leakage
+- Stale audio playback
+- Unauthorized external actions
+- Dependency-chain risk
+- Log and backup exposure
+
+==================================================
+16. CONFIGURATION
+==================================================
+
+Create a typed configuration layer with safe defaults.
+
+Support environment configuration for:
+
+- Database connection
+- Redis connection
+- Model provider
+- Default model
+- Complex-planning model
+- Cloud-model use enabled or disabled
+- Local-model endpoint
+- OpenCode endpoint
+- Kokoro endpoint or process command
+- Whisper endpoint or process command
+- Browser domain allowlist
+- Job time limits
+- Token and cost limits
+- Data-retention periods
+- Logging level
+
+Provide:
+
+- .env.example with placeholder values only
+- No real credentials
+- A configuration validation command
+- Clear startup errors for missing required values
+
+==================================================
+17. TESTING REQUIREMENTS
+==================================================
+
+Add meaningful tests for:
+
+Conversation:
+- SSE token streaming
+- Conversation isolation
+- Compact context construction
+- 
